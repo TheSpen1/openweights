@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
-load_dotenv()
+#load_dotenv()
 
 async def main():
     intents = discord.Intents.default()
