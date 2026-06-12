@@ -1,11 +1,11 @@
 from google import genai
 import discord
 from discord.ext import commands
+import os
 
 log_channel = 1514895510639743027
-log_channels = {}
 
-client = genai.Client(api_key="AIzaSyADiMZkN_IM6rc-AchVgUwAB5LTpGXSf0A")
+client = genai.Client(api_key=os.getenv("GOOGLE_LLM_API"))
 
 async def ask(prompt: str) -> str:
     response = await client.aio.models.generate_content(
@@ -21,3 +21,4 @@ async def permerror(permission: str) -> discord.Embed:
         color=discord.Color.red()
     )
     return await embed
+
