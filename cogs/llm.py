@@ -12,14 +12,18 @@ class LLM(commands.Cog):
     @commands.command()
     async def chat(self, ctx, *, message: str):
         async with ctx.typing():
-            try:
-                response = await ask(message)
-                if not response:
-                    await ctx.send("Got an empty response.")
+            for attempt in range(10):
+                try:
+                    response = await ask(message)
+                    if not response:
+                        await ctx.send("Got an empty response.")
+                        return
+                    await ctx.send(response)
                     return
-                await ctx.send(response)
-            except Exception as e:
-                await ctx.send(f"Error: {e}")
+                except Exception as e:
+                    print(f"Attempt {attempt + 1} failed: {e}")
+            else:
+                await ctx.send("The bot's LLM is stupid and basically died :/")
 
 async def setup(bot):
     await bot.add_cog(LLM(bot))
