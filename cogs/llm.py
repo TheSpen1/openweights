@@ -12,7 +12,9 @@ class LLM(commands.Cog):
     async def chat(self, ctx, *, message: str):
         async with ctx.typing():
             response = await self.LLMinstance.askllm(message)
-        await ctx.send(response)
-        
+            if isinstance(response, discord.Embed):
+                await ctx.send(embed=response)
+            else:
+                await ctx.send(response)
 async def setup(bot):
     await bot.add_cog(LLM(bot))
