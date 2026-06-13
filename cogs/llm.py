@@ -1,29 +1,18 @@
 import discord
 from discord.ext import commands
-from cogs.helpers import ask
-
-async def chatsee(prompt):
-    return await ask(prompt)
+from cogs.helpers import *
+import asyncio
 
 class LLM(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.LLMinstance = LLMHelper()
 
     @commands.command()
     async def chat(self, ctx, *, message: str):
         async with ctx.typing():
-            for attempt in range(10):
-                try:
-                    response = await ask(message)
-                    if not response:
-                        await ctx.send("Got an empty response.")
-                        return
-                    await ctx.send(response)
-                    return
-                except Exception as e:
-                    print(f"Attempt {attempt + 1} failed: {e}")
-            else:
-                await ctx.send("The bot's LLM is stupid and basically died :/")
-
+            response = await self.LLMinstance.askllm(message)
+        await ctx.send(response)
+        
 async def setup(bot):
     await bot.add_cog(LLM(bot))

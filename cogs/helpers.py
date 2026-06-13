@@ -2,35 +2,52 @@ from google import genai
 import discord
 from discord.ext import commands
 import os
+import asyncio
+from cogs.hyperparams import *
 
-log_channel = 1514895510639743027
-system_prompt = f"""
-You are Dexel, a Discord bot and general assistant for a community server. 
-You're helpful, direct, and have a casual but not overly informal tone — 
-think knowledgeable friend, not customer support. Don't over-explain. 
-No markdown formatting, no bullet points, no bold text. 
-Keep responses under 3-4 sentences unless the question genuinely needs more detail. Keep it under 400 tokens no matter what. 
+class LLMHelper():
+    def __init__(self):
+        self.client = genai.Client(api_key=os.getenv("GOOGLE_LLM_API"))
 
-User message: 
-"""
-
-client = genai.Client(api_key=os.getenv("GOOGLE_LLM_API"))
-
-async def ask(prompt: str) -> str:
-    response = await client.aio.models.generate_content(
-        model="gemma-4-31b-it",
-        contents=system_prompt+prompt,
-        config=genai.types.GenerateContentConfig(
-            max_output_tokens=400,
+    async def _ask(self, final_prompt, model="gemma-4-31b-it", max_output_tokens=1500):
+        response = await self.client.aio.models.generate_content(
+            model=model,
+            contents=final_prompt,
+            config=genai.types.GenerateContentConfig(
+                max_output_tokens=max_output_tokens,
+            )
         )
-    )
-    return response.text
+        print(response)
+        # instead of response.text
+        parts = response.candidates[0].content.parts
+        actual_text = parts[-1].text
+        print(actual_text)
+        return actual_text
+    
+    async def askllm(self, user_raw_prompt, attempts=5, wait_time = 2):
+        final_prompt = system_prompt + user_raw_prompt
+        for attempt in range(attempts):
+            try:
+                response = await self._ask(final_prompt=final_prompt)
+                if not response:
+                    raise RuntimeError("Got an empty message")
+                return response
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+                await asyncio.sleep(wait_time)
+        return customError("LLMfailure")
 
-async def permerror(permission: str) -> discord.Embed:
+def customError(permission, arguments = None) -> discord.Embed:
+    categories = {
+        "missingUserPerm": ["Missing User Permission","The user doesn't have the permission(s) to use this command"],
+        "LLMfailure": ["Low IQ LLM", "The bot's LLM is stupid and basically died :/"]
+    }
+    # permission = ["which_category","arguments"]
+    category = categories[permission]
     embed = discord.Embed(
-        title="Missing Permission",
-        description=f"You need the **{permission}** permission to use this command.",
+        title=category[0],
+        description=category[1],
         color=discord.Color.red()
     )
-    return await embed
+    return embed
 
