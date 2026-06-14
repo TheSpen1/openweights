@@ -13,8 +13,13 @@ class LLM(commands.Cog):
         async with ctx.typing():
             response = await self.LLMinstance.askllm(message)
             if isinstance(response, discord.Embed):
-                await ctx.send(embed=response)
+                embed = response
             else:
-                await ctx.send(response)
+                embed = discord.Embed(
+                    description=
+                    f"""{response}""",
+                    color=discord.Color.blurple()
+                )
+            await ctx.send(embed=embed, reference=ctx.message)
 async def setup(bot):
     await bot.add_cog(LLM(bot))

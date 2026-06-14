@@ -5,6 +5,12 @@ import os
 import asyncio
 from cogs.hyperparams import *
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
+
 class LLMHelper():
     def __init__(self):
         self.client = genai.Client(api_key=os.getenv("GOOGLE_LLM_API"))
@@ -17,11 +23,11 @@ class LLMHelper():
                 max_output_tokens=max_output_tokens,
             )
         )
-        print(response)
+        # print(response)
         # instead of response.text
         parts = response.candidates[0].content.parts
-        actual_text = parts[-1].text
-        print(actual_text)
+        actual_text = next(p.text for p in parts if not p.thought)
+        # print(actual_text)
         return actual_text
     
     async def askllm(self, user_raw_prompt, attempts=5, wait_time = 2):
@@ -33,7 +39,7 @@ class LLMHelper():
                     raise RuntimeError("Got an empty message")
                 return response
             except Exception as e:
-                print(f"Attempt {attempt + 1} failed: {e}")
+                #print(f"Attempt {attempt + 1} failed: {e}")
                 await asyncio.sleep(wait_time)
         return customError("LLMfailure")
 
@@ -51,3 +57,18 @@ def customError(permission, arguments = None) -> discord.Embed:
     )
     return embed
 
+class ErrorHandler():
+    def __init__(self):
+        pass
+
+    def error(self, errorType, user, guild, channel, message, timestamp):
+        embed = discord.Embed(
+            title=f"Error: {errorType}",
+            description=f"""User: {user.id}
+                            Guild: {guild.name} {guild.id}
+                            Channel: {channel.mention} {channel.id}
+                            User Message: {message}
+                            timestamp: {timestamp}""",
+            color=discord.Color.red()
+        )
+        return embed

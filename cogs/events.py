@@ -12,16 +12,6 @@ class Events(commands.Cog):
 
     # @commands.Cog.listener()
     # async def on_member_join(self, member):
-    #     if log_channels[member.guild]:
-    #         channel = self.bot.get_channel(log_channel)  # integer, no quotes
-    #         embed = discord.Embed(
-    #             title="Member Join",
-    #             description=f"""
-    #                 Global Name: {member.global_name}
-    #                 ID: {member.id}""",
-    #             color=0x5865F2
-    #         )
-    #         await channel.send(embed=embed)
-
+    #     
 async def setup(bot):
     await bot.add_cog(Events(bot))

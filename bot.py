@@ -1,10 +1,13 @@
 import asyncio
 import os
-from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
-#load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
 
 async def main():
     intents = discord.Intents.default()
