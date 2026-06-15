@@ -11,7 +11,7 @@ class LLM(commands.Cog):
         self.LLMinstance = LLMHelper()
 
     @app_commands.command(name="chat", description="Chat with Dexel :D")
-    @app_commands.describe(prompt="your prompt, could be anything, say 'what's 2+2?")
+    @app_commands.describe(prompt="your prompt, could be anything, say 'what's 2+2? (powered by nvidia)")
     async def embed(self, interaction: discord.Interaction, prompt: str):
         await interaction.response.defer()
         response = await self.LLMinstance.askllm(prompt)

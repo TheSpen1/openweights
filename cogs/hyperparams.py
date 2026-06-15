@@ -1,3 +1,4 @@
+nvidia_base_url = "https://integrate.api.nvidia.com/v1"
 log_channel = 1514895510639743027
 error_channel = 1515313910255714406
 system_prompt = f"""
